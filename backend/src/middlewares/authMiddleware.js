@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
 
         req.usuario = decoded;
 
-        next(); 
+        next();
     } catch (error) {
         console.error("Error de JWT:", error.message);
         res.status(401).json({ msg: "Token no válido o expirado." });

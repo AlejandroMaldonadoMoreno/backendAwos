@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, role} = req.body;
 
     try {
         const userExist = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
@@ -13,8 +13,8 @@ const register = async (req, res) => {
         const passwordHash = await bcrypt.hash(password, salt);
 
         const newUser = await pool.query(
-            'INSERT INTO usuarios (email, password) VALUES ($1, $2) RETURNING id, email, rol',
-            [email, passwordHash]
+            'INSERT INTO usuarios (email, password) VALUES ($1, $2, $3) RETURNING id, email, rol',
+            [email, passwordHash, role || 'user']
         );
 
         res.status(201).json({ msg: "Usuario registrado con éxito", user: newUser.rows[0] });
