@@ -15,7 +15,7 @@ const crearProducto = async (req, res) => {
     const { nombre, precio, stock, descripcion, imagen_url, id_categoria, youtube_id, latitud, longitud } = req.body;
 
     try {
-        if (!nombre || !precio || !id_categoria) {
+        if (!nombre || !precio ) {
             return res.status(400).json({ msg: "Nombre, precio y categoría son obligatorios" });
         }
 
@@ -35,7 +35,7 @@ const crearProducto = async (req, res) => {
             stock || 0,
             descripcion || '',
             imagen_url || '',
-            id_categoria,
+            id_categoria || 1,
             youtube_id || null,
             latitud || 20.5457304, // Valor por defecto UPQ
             longitud || -100.283493
