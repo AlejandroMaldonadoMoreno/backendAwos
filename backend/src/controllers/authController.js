@@ -36,7 +36,7 @@ const login = async (req, res) => {
         if (!Match) return res.status(400).json({ msg: "Credenciales inválidas" });
 
         const payload = { id: usuario.id, rol: usuario.rol, email: usuario.email };
-        
+
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ msg: "Bienvenido", token: token });

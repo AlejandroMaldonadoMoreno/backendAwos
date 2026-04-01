@@ -6,6 +6,7 @@ const getProductos = async (req, res) => {
         const response = await pool.query(query);
         res.json(response.rows);
     } catch (error) {
+        console.error("Error en getProductos:", error); // Añadido para debug
         res.status(500).json({ error: 'Error al listar productos' });
     }
 };
@@ -18,18 +19,29 @@ const crearProducto = async (req, res) => {
             return res.status(400).json({ msg: "Nombre, precio y categoría son obligatorios" });
         }
 
-        if(latitud && longitud === undefined) {
-            return res.status(400).json({ msg: "Si se proporciona latitud, también se debe proporcionar longitud y latitud" });
+        if ((latitud && !longitud) || (!latitud && longitud)) {
+            return res.status(400).json({ msg: "Se requieren tanto latitud como longitud para la ubicación" });
         }
 
         const query = `
             INSERT INTO productos (nombre, precio, stock, descripcion, imagen_url, id_categoria, youtube_id, latitud, longitud)
-            VALUES ($1, $2, $3, $5, $6, $7, $8,$9) RETURNING *
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+            RETURNING *
         `;
 
-        const response = await pool.query(query, [
-            nombre, precio, stock || 0, descripcion || '', imagen_url || '', id_categoria, youtube_id || null, latitud || 20.5457304, longitud || -100.283493
-        ]);
+        const values = [
+            nombre,
+            precio,
+            stock || 0,
+            descripcion || '',
+            imagen_url || '',
+            id_categoria,
+            youtube_id || null,
+            latitud || 20.5457304, // Valor por defecto UPQ
+            longitud || -100.283493
+        ];
+
+        const response = await pool.query(query, values);
 
         res.status(201).json({
             msg: "Producto creado con éxito",
@@ -37,7 +49,7 @@ const crearProducto = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error en crearProducto:", error);
         res.status(500).json({ error: 'Error al crear el producto' });
     }
 };
