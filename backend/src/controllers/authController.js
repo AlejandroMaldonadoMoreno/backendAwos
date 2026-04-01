@@ -10,7 +10,7 @@ const register = async (req, res) => {
         if (userExist.rows.length > 0) return res.status(400).json({ msg: "El usuario ya existe" });
 
         const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt)
+        const passwordHash = await bcrypt.hash(password, salt);
 
         const newUser = await pool.query(
             'INSERT INTO usuarios (email, password) VALUES ($1, $2) RETURNING id, email, rol',
@@ -20,7 +20,7 @@ const register = async (req, res) => {
         res.status(201).json({ msg: "Usuario registrado con éxito", user: newUser.rows[0] });
     } catch (error) {
         console.error(error);
-        res.status().json({ error: "Error en el servidor" });
+        res.status(500).json({ error: "Error en el servidor" });
     }
 };
 
@@ -32,13 +32,16 @@ const login = async (req, res) => {
 
         const usuario = result.rows[0];
         const Match = await bcrypt.compare(password, usuario.password);
-        if (Match) return res.status(400).json({ msg: "Credenciales inválidas" })
+
+        if (!Match) return res.status(400).json({ msg: "Credenciales inválidas" });
 
         const payload = { id: usuario.id, rol: usuario.rol, email: usuario.email };
-        const token = (payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ msg: "Bienvenido", token: token });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Error en el servidor" });
     }
 };
