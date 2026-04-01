@@ -5,16 +5,19 @@ const authRoutes = require('./routes/authRoutes');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
 
-// Middlewares
+const PORT = process.env.PORT || 10000;
+
 app.use(cors());
 app.use(express.json());
 
-// Rutas
+app.get('/', (req, res) => {
+    res.send('Backend de la tienda funcionando correctamente');
+});
+
 app.use('/api/productos', productoRoutes);
 app.use('/api/auth', authRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
